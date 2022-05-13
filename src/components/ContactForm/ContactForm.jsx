@@ -1,8 +1,14 @@
 import { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import {
+  useGetAllContactsQuery,
+  useAddContactMutation,
+} from 'services/phoneBookApi';
 import { nanoid } from '@reduxjs/toolkit';
-import { getContactsItems, addContact } from 'redux/contacts/slice';
-import { showInfoMessage, showSuccessMessage } from 'utils/notifications';
+import {
+  showInfoMessage,
+  showSuccessMessage,
+  showErrorMessage,
+} from 'utils/notifications';
 import {
   FormWrapper,
   ContactSubmitForm,
@@ -13,48 +19,59 @@ import {
 
 export default function ContactForm() {
   const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+  const [phone, setPhone] = useState('');
 
-  const contacts = useSelector(getContactsItems);
-  const dispatch = useDispatch();
+  const { data: contacts } = useGetAllContactsQuery();
+  const [addContact, { isLoading: isCreating }] = useAddContactMutation();
 
   const nameInputId = nanoid();
-  const numberInputId = nanoid();
+  const phoneInputId = nanoid();
 
   const onNameChange = evt => {
     setName(evt.currentTarget.value);
   };
 
-  const onNumberChange = evt => {
-    setNumber(evt.currentTarget.value);
+  const onPhoneChange = evt => {
+    setPhone(evt.currentTarget.value);
   };
 
   const formReset = () => {
     setName('');
-    setNumber('');
+    setPhone('');
   };
 
-  const onContactFormSubmit = evt => {
+  const onContactFormSubmit = async evt => {
     evt.preventDefault();
 
     if (
       contacts.find(
         contact =>
           contact.name.toLowerCase() === name.toLowerCase() &&
-          contact.number === number
+          contact.phone === phone
       )
     ) {
       showInfoMessage('This contact is already in your phonebook');
       return;
     }
 
-    if (contacts.find(contact => contact.number === number)) {
+    if (contacts.find(contact => contact.phone === phone)) {
       showInfoMessage('This phone number is already in your phonebook');
       return;
     }
 
-    dispatch(addContact({ name, number }));
-    showSuccessMessage('New contact has been added in your phonebook');
+    const newContact = {
+      name,
+      phone,
+    };
+
+    try {
+      await addContact(newContact);
+      showSuccessMessage('New contact has been added in your phonebook');
+    } catch (error) {
+      console.log(error.message);
+      showErrorMessage('Something goes wrong, new contact was not created');
+    }
+
     formReset();
   };
 
@@ -75,21 +92,23 @@ export default function ContactForm() {
             required
           />
         </FormInputLabel>
-        <FormInputLabel htmlFor={numberInputId}>
+        <FormInputLabel htmlFor={phoneInputId}>
           Number
           <FormInput
             type="tel"
-            name="number"
+            name="phone"
             placeholder="Type number here"
             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
             title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-            value={number}
-            onChange={onNumberChange}
-            id={numberInputId}
+            value={phone}
+            onChange={onPhoneChange}
+            id={phoneInputId}
             required
           />
         </FormInputLabel>
-        <FormSubmitBtn type="submit">Add contact</FormSubmitBtn>
+        <FormSubmitBtn type="submit" disabled={isCreating}>
+          {isCreating ? 'Adding...' : 'Add contact'}
+        </FormSubmitBtn>
       </ContactSubmitForm>
     </FormWrapper>
   );

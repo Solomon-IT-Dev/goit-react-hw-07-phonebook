@@ -35,6 +35,11 @@ export const ListElement = styled.li`
   }
 `;
 
+export const LoaderItem = styled.p`
+  font-size: 24px;
+  color: darkgray;
+`;
+
 export const NoMatchesText = styled.p`
   margin: 20px 0;
   font-size: 18px;
@@ -42,4 +47,23 @@ export const NoMatchesText = styled.p`
 
 export const NoContactsText = styled.p`
   font-size: 18px;
+`;
+
+export const FetchErrorText = styled.p`
+  margin-top: 20px;
+  font-size: 18px;
+`;
+
+export const RefetchBtn = styled.button`
+  padding: 0;
+  margin-top: 20px;
+  color: #3498db;
+  background-color: transparent;
+  border: none;
+  transition: all 250ms ease-in-out;
+
+  :hover,
+  :focus {
+    color: #39b0ff;
+  }
 `;

@@ -42,4 +42,8 @@ export const DeleteBtn = styled.button`
   :focus {
     color: #ff3939;
   }
+
+  :disabled {
+    color: #4e95c4;
+  }
 `;

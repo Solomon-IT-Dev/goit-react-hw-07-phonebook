@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
-import { FaTrashAlt } from 'react-icons/fa';
+import { useDeleteContactMutation } from 'services/phoneBookApi';
+import { showSuccessMessage, showErrorMessage } from 'utils/notifications';
+import { FaTrashAlt, FaSpinner } from 'react-icons/fa';
 import { IconContext } from 'react-icons';
 import {
   ContactItemWrapper,
@@ -8,18 +10,35 @@ import {
   DeleteBtn,
 } from './ContactItem.styled';
 
-export default function ContactItem({ id, name, number, onDelete }) {
+export default function ContactItem({ id, name, phone }) {
+  const [deleteContact, { isLoading: isDeleting }] = useDeleteContactMutation();
+
+  const onContactDelete = async (contactId, contactName) => {
+    try {
+      await deleteContact(contactId);
+      showSuccessMessage(
+        `"${contactName}" has been deleted from your phonebook`
+      );
+    } catch (error) {
+      console.log(error.message);
+      showErrorMessage(
+        `Something goes wrong, "${contactName}" was not deleted`
+      );
+    }
+  };
+
   return (
     <ContactItemWrapper>
       <ContactItemName>{name}</ContactItemName>
-      <ContactItemNum href={`tel:${number}`}>{number}</ContactItemNum>
+      <ContactItemNum href={`tel:${phone}`}>{phone}</ContactItemNum>
       <DeleteBtn
         type="button"
-        onClick={() => onDelete(id)}
+        onClick={() => onContactDelete(id, name)}
+        disabled={isDeleting}
         aria-label="Delete contact"
       >
         <IconContext.Provider value={{ size: '2em' }}>
-          <FaTrashAlt />
+          {isDeleting ? <FaSpinner /> : <FaTrashAlt />}
         </IconContext.Provider>
       </DeleteBtn>
     </ContactItemWrapper>
@@ -29,6 +48,5 @@ export default function ContactItem({ id, name, number, onDelete }) {
 ContactItem.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  number: PropTypes.string.isRequired,
-  onDelete: PropTypes.func.isRequired,
+  phone: PropTypes.string.isRequired,
 };

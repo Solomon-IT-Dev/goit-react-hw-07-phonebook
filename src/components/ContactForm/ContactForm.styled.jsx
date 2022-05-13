@@ -31,7 +31,7 @@ export const FormInput = styled.input`
 `;
 
 export const FormSubmitBtn = styled.button`
-  display: inline-block;  
+  display: inline-block;
   width: 160px;
   height: 50px;
   margin-left: auto;
@@ -45,11 +45,15 @@ export const FormSubmitBtn = styled.button`
   background-color: #3498db;
   color: white;
   box-shadow: none;
-  transition: all 250ms ease-in-out; 
+  transition: all 250ms ease-in-out;
 
-  :hover, :focus {
+  :hover,
+  :focus {
     background-color: #39b0ff;
-    box-shadow: 0px 4px 4px #00000026,
-                inset 0px 0px 0px 0px #0000004d;
+    box-shadow: 0px 4px 4px #00000026, inset 0px 0px 0px 0px #0000004d;
+  }
+
+  :disabled {
+    background-color: #4e95c4;
   }
 `;
